@@ -1,0 +1,33 @@
+path_to_images: "data/test_images"
+skin_segmentation:
+    alg: "threshold_2"
+    alg_args:
+        threshold: 50
+        center_crop: False
+        model_path: "models/skin_dist.pkl"
+lesion_segmentaion:
+    alg: "default"
+    alg_args:
+        threshold: 0
+        center_crop: False
+        model_path: "models/2020-07-17_derm-acne_vgg_classifier.pt"
+blur_detection:
+    alg: "fourier"
+    alg_args:
+        use_patches: False
+        use_center_mask: True
+        use_skin_mask: True
+        threshold: -5
+lighting_detection:
+    alg: "skin_dist"
+    alg_args:
+        use_patches: False
+        use_center_mask: True
+        use_skin_mask: True
+        threshold: 0.5
+zoom_detection:
+    alg: "default"
+    alg_args:
+        use_center_mask: True
+        threshold: 0.7
+seed: 0
