@@ -3,7 +3,7 @@ Algorithm for automatically detecting the quality of dermatology images sent in 
 
 # Install 
 (Assumes you have Anaconda / Miniconda installed). Run the following commands:
-1. ```conda env create --file environment.txt```
+1. ```conda env create --file environment.yml```
 2. ```bash setup.sh```
 
 # How to use

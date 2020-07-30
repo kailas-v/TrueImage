@@ -4,22 +4,22 @@ import semantic_segmentation
 
 def load_skin_segmentation(args):
     alg_args = args.skin_segmentation
-    if alg_args['alg'] == 'center_crop':
-        return CenterCrop(**alg_args['alg_args'])
-    elif alg_args['alg'] == 'threshold_1':
-        return SkinSegmentationThreshold1(**alg_args['alg_args'])
-    elif alg_args['alg'] == 'threshold_2':
-        return SkinSegmentationThreshold2(**alg_args['alg_args'])
-    elif alg_args['alg'] == 'cnn':
-        return SkinSegmentationCNN(**alg_args['alg_args'])
+    if alg_args['alg'][0] == 'center_crop':
+        return CenterCrop(**alg_args['alg_args'][0])
+    elif alg_args['alg'][0] == 'threshold_1':
+        return SkinSegmentationThreshold1(**alg_args['alg_args'][0])
+    elif alg_args['alg'][0] == 'threshold_2':
+        return SkinSegmentationThreshold2(**alg_args['alg_args'][0])
+    elif alg_args['alg'][0] == 'cnn':
+        return SkinSegmentationCNN(**alg_args['alg_args'][0])
     else:
         raise
 def load_lesion_segmentation(args):
     alg_args = args.lesion_segmentaion
-    if alg_args['alg'] == 'default':
-        return DefaultLesion(**alg_args['alg_args'])
-    elif alg_args['alg'] == 'cnn':
-        return LesionSegmentationCNN(**alg_args['alg_args'])
+    if alg_args['alg'][0] == 'default':
+        return DefaultLesion(**alg_args['alg_args'][0])
+    elif alg_args['alg'][0] == 'cnn':
+        return LesionSegmentationCNN(**alg_args['alg_args'][0])
     else:
         raise
 

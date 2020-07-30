@@ -38,12 +38,22 @@ def add_outside_module(path):
     if path not in sys.path:
         sys.path.append(path)
 
+def make_list(v):
+    try: return list(v)
+    except: return [v]
+
 
 # -- For loading images --
 def load_image(path):
-    image = cv2.imread(str(path))
-    assert image is not None
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    try:
+        image = cv2.imread(str(path))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    except:
+        image = PIL.Image.open(str(path))
+        if str(path).split(".")[-1].lower() == 'gif':
+            image = [np.array(frame.copy().convert('RGB').getdata(),dtype=np.uint8).reshape(frame.size[1],frame.size[0],3) for frame in PIL.ImageSequence.Iterator(image)][0]
+        else:
+            image = np.array(image)
     # image_width = (image.shape[1] // 32) * 32
     # image_height = (image.shape[0] // 32) * 32
     # image = image[:image_height, :image_width]
@@ -201,3 +211,54 @@ class SkinDistribution:
     def __call__(self, image):
         scores = self.model.score_samples(self.preprocess.transform(image.reshape((-1,3))))
         return -scores.reshape(image.shape[:2]) / 10.655672255998063
+
+def basic_stats(a):
+    return [np.median(a), np.mean(a), np.std(a), np.min(a), np.max(a)]
+def basic_stats2(a):
+    return [np.quantile(a, q) for q in np.arange(0.1,1.,0.2)]
+
+
+
+class LogisticDecision:
+    def __init__(self, path_prefix):
+        self.models = {}
+        for k in ['single', 'blur', 'lighting', 'zoom']:
+            with open(f"{path_prefix}_{k}.pkl", 'rb') as f:
+                self.models[k] = pickle.load(f)
+
+    def decide(self, quality_scores):
+        pcas = self.models['single']['pcas']
+        a = [pca.transform(np.array(q)[None,:]) for q,pca in zip(quality_scores.values(), pcas)]
+        a = np.concatenate(a, axis=-1)
+
+        decisions = {}
+        for k in ['single', 'blur', 'lighting', 'zoom']:
+            model = self.models[k]['model']
+            threshold = self.models[k]['threshold']
+
+            hat = model.predict(a)[0]
+            hat_s = model.decision_function(a)[0]
+            # -- If not confident, just set to 'Good' --
+            if hat_s < threshold:
+                hat = 0
+
+            decisions[k] = hat
+
+        bad = np.any([v for k,v in decisions.items() if k != 'single'])
+        if bad:
+            del decisions['single']
+        elif decisions['single']:
+            del decisions['single']
+            decisions['poor quality (?)'] = True
+        else:
+            del decisions['single']
+            decisions['Good'] = True
+
+        return decisions
+
+
+
+
+
+
+
